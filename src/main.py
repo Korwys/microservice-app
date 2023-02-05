@@ -4,6 +4,7 @@ import logging.config
 import uvicorn
 from fastapi import FastAPI
 
+from carts.router import cart_router
 from config.initial_db_data import init_tables_and_data
 from products.router import product_router
 
@@ -24,6 +25,7 @@ def server():
 
 
 app.include_router(product_router, tags=['product'], prefix='/api/product')
+app.include_router(cart_router, tags=['cart'], prefix='/api/cart')
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3001)
