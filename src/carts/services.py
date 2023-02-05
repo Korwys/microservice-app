@@ -12,7 +12,7 @@ from products.models import Product
 logger = logging.getLogger('app.carts.router')
 
 
-async def add_new_product_in_cart(new_product: CartAdd, db: AsyncSession):
+async def add_new_product_in_cart(new_product: CartAdd, db: AsyncSession) -> Cart:
     check_db_obj = await db.execute(select(Product).where(Product.id == new_product.product))
     result = check_db_obj.scalars().first()
     if result is not None:
@@ -28,7 +28,7 @@ async def add_new_product_in_cart(new_product: CartAdd, db: AsyncSession):
         return JSONResponse(status_code=404, content={"Message": "Product with this ID not found. Can't add to cart."})
 
 
-async def update_product_quantity(db: AsyncSession, obj_in: CartBase):
+async def update_product_quantity(db: AsyncSession, obj_in: CartBase) -> dict | JSONResponse:
     check_db_obj = await db.execute(select(Cart).where(Cart.product == obj_in.product))
     result = check_db_obj.scalars().first()
     if result is not None and obj_in.quantity > 0:
@@ -46,7 +46,7 @@ async def update_product_quantity(db: AsyncSession, obj_in: CartBase):
         return JSONResponse(status_code=404, content={"Message": "Product quantity must be greater than 0"})
 
 
-async def fetch_all_products_from_cart(db: AsyncSession):
+async def fetch_all_products_from_cart(db: AsyncSession) -> list[Cart]:
     stmt = select(Cart)
     try:
         result = await db.execute(stmt)
@@ -55,7 +55,8 @@ async def fetch_all_products_from_cart(db: AsyncSession):
     except SQLAlchemyError as err:
         logger.exception(err)
 
-async def delete_product_from_cart(db: AsyncSession, obj_in: CartDelete):
+
+async def delete_product_from_cart(db: AsyncSession, obj_in: CartDelete) -> JSONResponse:
     stmt = delete(Cart).where(Cart.product == obj_in.product)
     try:
         await db.execute(stmt)
