@@ -47,8 +47,8 @@ class ProductQuery(BaseModel):
             return value
 
 
-class ProductQueryList(BaseModel):
-    products: list[str]
+class ProductQueryList(ProductBase):
+    ...
 
 
 class ProductInDB(ProductBase):

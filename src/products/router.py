@@ -15,6 +15,7 @@ async def create_new_product(product: ProductBase, db: AsyncSession = Depends(ge
     return await add_product_in_db(db=db, obj_in=product)
 
 
-@product_router.post('/search', response_model=ProductQueryList, status_code=status.HTTP_200_OK)
+@product_router.post('/search', response_model=list[ProductQueryList], status_code=status.HTTP_200_OK)
 async def search_products(query: ProductQuery, db: AsyncSession = Depends(get_db)):
     return await fetch_request_products(db=db, query=query)
+

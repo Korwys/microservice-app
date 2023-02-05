@@ -25,29 +25,29 @@ async def add_product_in_db(db: AsyncSession, obj_in: ProductBase) -> Product:
 
 async def sorted_keyword_data(db: AsyncSession, keyword: str, name: UnaryExpression,
                               price: UnaryExpression) -> JSONResponse:
-    stmt = select(Product.name).where(Product.name.like(f"%{keyword}%"))
+    stmt = select(Product).where(Product.name.ilike(f"%{keyword}%"))
     if name is not None:
         stmt = stmt.order_by(name)
     if price is not None:
         stmt = stmt.order_by(price)
     try:
         result = await db.execute(stmt)
-        values = [product.name for product in result]
-        return JSONResponse(status_code=200, content={'products': values})
+        values = [{"name": product.name, "price": product.price} for product in result.scalars().all()]
+        return JSONResponse(content={'products': values})
     except SQLAlchemyError as err:
         logger.exception(err)
 
 
 async def sorted_data(db: AsyncSession, name: UnaryExpression, price: UnaryExpression) -> JSONResponse:
-    stmt = select(Product.name)
+    stmt = select(Product)
     if name is not None:
         stmt = stmt.order_by(name)
     if price is not None:
         stmt = stmt.order_by(price)
     try:
         result = await db.execute(stmt)
-        values = [product.name for product in result]
-        return JSONResponse(status_code=200, content={'products': values})
+        values = [{"name": product.name, "price": product.price} for product in result.scalars().all()]
+        return values
     except SQLAlchemyError as err:
         logger.exception(err)
 
