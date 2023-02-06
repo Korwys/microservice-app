@@ -2,6 +2,10 @@ from pydantic import BaseModel, validator
 
 
 class ProductBase(BaseModel):
+    ...
+
+
+class ProductCreate(ProductBase):
     name: str
     price: float
 
@@ -20,7 +24,7 @@ class ProductBase(BaseModel):
             return value
 
 
-class ProductQuery(BaseModel):
+class ProductQuery(ProductBase):
     keyword: str | None = None
     price_sorted: str | None = 'default'
     name_sorted: str | None = 'default'
@@ -47,7 +51,7 @@ class ProductQuery(BaseModel):
             return value
 
 
-class ProductQueryList(ProductBase):
+class ProductQueryList(ProductCreate):
     ...
 
     class Config:

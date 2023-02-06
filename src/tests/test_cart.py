@@ -24,6 +24,7 @@ async def test_cart_add_product(client: AsyncClient):
     assert response.json() == {
         "id": 1,
         "product": 1,
+        "price": 1000,
         "quantity": 1
     }
 
@@ -73,6 +74,7 @@ async def test_cart_get_all_product_from_cart(client: AsyncClient):
         {
             "id": 1,
             "product": 1,
+            "price": 1000.0,
             "quantity": 10
         }
     ]

@@ -7,12 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
 from products.models import Product
-from products.schemas import ProductBase, ProductQuery
+from products.schemas import ProductCreate, ProductQuery
 
 logger = logging.getLogger('app.products.services')
 
 
-async def add_product_in_db(db: AsyncSession, obj_in: ProductBase) -> ProductBase:
+async def add_product_in_db(db: AsyncSession, obj_in: ProductCreate) -> ProductCreate:
     obj_in = obj_in.dict()
     db_obj = Product(**obj_in)
     try:

@@ -19,13 +19,8 @@ async def db_init() -> None:
     await init_tables_and_data()
 
 
-@app.get('/')
-def server():
-    return "Hello Danche"
-
-
 app.include_router(product_router, tags=['product'], prefix='/api/product')
 app.include_router(cart_router, tags=['cart'], prefix='/api/cart')
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=3001)
+    uvicorn.run(app, host="0.0.0.0", port=8080)

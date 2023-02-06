@@ -13,10 +13,11 @@ logger = logging.getLogger('app.carts.router')
 
 
 async def add_new_product_in_cart(new_product: CartAdd, db: AsyncSession) -> Cart:
-    check_db_obj = await db.execute(select(Product).where(Product.id == new_product.product))
+    check_db_obj = await db.execute(select(Product.price).where(Product.id == new_product.product))
     result = check_db_obj.scalars().first()
     if result is not None:
         obj_in = new_product.dict()
+        obj_in['price'] = result
         updated_db_obj = Cart(**obj_in)
         try:
             db.add(updated_db_obj)
