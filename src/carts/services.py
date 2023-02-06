@@ -1,12 +1,12 @@
 import logging
 
-from sqlalchemy import update, select, delete
+from sqlalchemy import update, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
 from carts.models import Cart
-from carts.schemas import CartBase, CartDelete, CartAdd
+from carts.schemas import CartBase, CartAdd
 from products.models import Product
 
 logger = logging.getLogger('app.carts.router')
@@ -52,15 +52,5 @@ async def fetch_all_products_from_cart(db: AsyncSession) -> list[Cart]:
         result = await db.execute(stmt)
         values = result.scalars().all()
         return values
-    except SQLAlchemyError as err:
-        logger.exception(err)
-
-
-async def delete_product_from_cart(db: AsyncSession, obj_in: CartDelete) -> JSONResponse:
-    stmt = delete(Cart).where(Cart.product == obj_in.product)
-    try:
-        await db.execute(stmt)
-        await db.commit()
-        return JSONResponse(status_code=200, content={"Message": "Product was deleted"})
     except SQLAlchemyError as err:
         logger.exception(err)

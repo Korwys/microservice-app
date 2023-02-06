@@ -1,14 +1,8 @@
 from pydantic import BaseModel
 
-from products.schemas import ProductBase
-
 
 class CartBase(BaseModel):
     ...
-
-
-class CartDelete(CartBase):
-    product: int
 
 
 class CartUpdate(CartBase):
@@ -17,7 +11,7 @@ class CartUpdate(CartBase):
 
 
 class CartAdd(CartUpdate):
-    ...
+    quantity: int = 1
 
 
 class CartItem(CartUpdate):

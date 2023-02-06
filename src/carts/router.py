@@ -2,9 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from carts.schemas import CartDelete, CartAdd, CartInDB, CartUpdate
-from carts.services import add_new_product_in_cart, update_product_quantity, fetch_all_products_from_cart, \
-    delete_product_from_cart
+from carts.schemas import CartAdd, CartInDB, CartUpdate
+from carts.services import add_new_product_in_cart, update_product_quantity, fetch_all_products_from_cart
 from config.db import get_db
 
 cart_router = APIRouter()
@@ -23,8 +22,3 @@ async def edit_product_quantity(new_product_quantity: CartUpdate, db: AsyncSessi
 @cart_router.get('/', response_model=list[CartInDB], status_code=status.HTTP_200_OK)
 async def get_all_products(db: AsyncSession = Depends(get_db)):
     return await fetch_all_products_from_cart(db=db)
-
-
-@cart_router.delete("/delete/}", status_code=status.HTTP_200_OK)
-async def delete_product(product_to_delete: CartDelete, db: AsyncSession = Depends(get_db)):
-    return await delete_product_from_cart(db, product_to_delete)

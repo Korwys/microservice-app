@@ -12,13 +12,13 @@ from products.schemas import ProductBase, ProductQuery
 logger = logging.getLogger('app.products.services')
 
 
-async def add_product_in_db(db: AsyncSession, obj_in: ProductBase) -> Product:
+async def add_product_in_db(db: AsyncSession, obj_in: ProductBase) -> ProductBase:
     obj_in = obj_in.dict()
     db_obj = Product(**obj_in)
     try:
         db.add(db_obj)
         await db.commit()
-        return db_obj
+        return obj_in
     except SQLAlchemyError as err:
         logger.exception(err)
 
