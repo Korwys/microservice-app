@@ -16,7 +16,10 @@ logging.config.dictConfig(json.load(config_file))
 
 @app.on_event("startup")
 async def db_init() -> None:
-    await init_tables_and_data()
+    try:
+        await init_tables_and_data()
+    except ConnectionRefusedError as err:
+        raise Exception('Please check your docker container') from err
 
 
 app.include_router(product_router, tags=['product'], prefix='/api/product')

@@ -22,7 +22,6 @@ class CartItem(CartUpdate):
 class CartInDB(CartBase):
     id: int
     product: int
-    price: float
     quantity: int
 
     class Config:

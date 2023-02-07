@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, DECIMAL
 
 from config.db import Base
 
@@ -8,4 +8,4 @@ class Product(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(150), nullable=False)
-    price = Column(Float, nullable=False)
+    price = Column(DECIMAL(11, 2), nullable=False)

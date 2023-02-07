@@ -1,30 +1,32 @@
 import logging
 
-from sqlalchemy import UnaryExpression
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import UnaryExpression
 from starlette.responses import JSONResponse
 
 from products.models import Product
-from products.schemas import ProductCreate, ProductQuery
+from products.schemas import ProductCreate, ProductQuery, ProductInDB
+from products.utils import error_notification
 
 logger = logging.getLogger('app.products.services')
 
 
-async def add_product_in_db(db: AsyncSession, obj_in: ProductCreate) -> ProductCreate:
+async def add_product_in_db(db: AsyncSession, obj_in: ProductCreate) -> ProductInDB:
     obj_in = obj_in.dict()
     db_obj = Product(**obj_in)
     try:
         db.add(db_obj)
         await db.commit()
-        return obj_in
+        return db_obj
     except SQLAlchemyError as err:
         logger.exception(err)
+        return error_notification()
 
 
 async def sorted_keyword_data(db: AsyncSession, keyword: str, name: UnaryExpression,
-                              price: UnaryExpression) -> list:
+                              price: UnaryExpression) -> list[ProductInDB]:
     stmt = select(Product).where(Product.name.ilike(f"%{keyword}%"))
     if name is not None:
         stmt = stmt.order_by(name)
@@ -32,12 +34,13 @@ async def sorted_keyword_data(db: AsyncSession, keyword: str, name: UnaryExpress
         stmt = stmt.order_by(price)
     try:
         result = await db.execute(stmt)
-        return [{"name": product.name, "price": product.price} for product in result.scalars().all()]
+        return result.scalars().all()
     except SQLAlchemyError as err:
         logger.exception(err)
+        return error_notification()
 
 
-async def sorted_data(db: AsyncSession, name: UnaryExpression, price: UnaryExpression) -> list:
+async def sorted_data(db: AsyncSession, name: UnaryExpression, price: UnaryExpression) -> list[ProductInDB]:
     stmt = select(Product)
     if name is not None:
         stmt = stmt.order_by(name)
@@ -45,12 +48,13 @@ async def sorted_data(db: AsyncSession, name: UnaryExpression, price: UnaryExpre
         stmt = stmt.order_by(price)
     try:
         result = await db.execute(stmt)
-        return [{"name": product.name, "price": product.price} for product in result.scalars().all()]
+        return result.scalars().all()
     except SQLAlchemyError as err:
         logger.exception(err)
+        return error_notification()
 
 
-async def fetch_request_products(db: AsyncSession, query: ProductQuery) -> JSONResponse:
+async def fetch_request_products(db: AsyncSession, query: ProductQuery) -> list[ProductInDB] | JSONResponse:
     column_price_sorted = getattr(Product.price, query.price_sorted)() if query.price_sorted != 'default' else None
     column_name_sorted = getattr(Product.name, query.name_sorted)() if query.name_sorted != 'default' else None
     if query.keyword:

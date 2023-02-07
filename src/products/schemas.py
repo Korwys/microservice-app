@@ -18,8 +18,8 @@ class ProductCreate(ProductBase):
 
     @validator('price')
     def price_validator(cls, value: float) -> float:
-        if value > 99999999999.9:
-            raise ValueError('Product price must be less 99999999999.9')
+        if value > 99999999999.9 or value < 0:
+            raise ValueError('Product price must be lt 99999999999.9 and ge 0')
         else:
             return value
 
@@ -53,6 +53,12 @@ class ProductQuery(ProductBase):
 
 class ProductQueryList(ProductCreate):
     ...
+
+
+class ProductInDB(ProductBase):
+    id: int
+    name: str
+    price: float
 
     class Config:
         orm_mode = True

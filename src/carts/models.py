@@ -7,6 +7,5 @@ class Cart(Base):
     __tablename__ = 'cart'
 
     id = Column(Integer, primary_key=True, index=True)
-    product = Column(Integer, ForeignKey('product.id'), nullable=False)
-    price = Column(Integer, nullable=False)
+    product = Column(Integer, ForeignKey('product.id'), nullable=False, unique=True)
     quantity = Column(Integer, nullable=False)
