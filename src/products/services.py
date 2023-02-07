@@ -13,7 +13,7 @@ from products.utils import error_notification
 logger = logging.getLogger('app.products.services')
 
 
-async def add_product_in_db(db: AsyncSession, obj_in: ProductCreate) -> ProductInDB:
+async def add_product_in_db(db: AsyncSession, obj_in: ProductCreate) -> ProductInDB | JSONResponse:
     obj_in = obj_in.dict()
     db_obj = Product(**obj_in)
     try:
@@ -25,8 +25,8 @@ async def add_product_in_db(db: AsyncSession, obj_in: ProductCreate) -> ProductI
         return error_notification()
 
 
-async def sorted_keyword_data(db: AsyncSession, keyword: str, name: UnaryExpression,
-                              price: UnaryExpression) -> list[ProductInDB]:
+async def sorted_data_with_keyword(db: AsyncSession, keyword: str, name: UnaryExpression,
+                                   price: UnaryExpression) -> list[ProductInDB] | JSONResponse:
     stmt = select(Product).where(Product.name.ilike(f"%{keyword}%"))
     if name is not None:
         stmt = stmt.order_by(name)
@@ -40,7 +40,8 @@ async def sorted_keyword_data(db: AsyncSession, keyword: str, name: UnaryExpress
         return error_notification()
 
 
-async def sorted_data(db: AsyncSession, name: UnaryExpression, price: UnaryExpression) -> list[ProductInDB]:
+async def sorted_data_without_keyword(db: AsyncSession, name: UnaryExpression,
+                                      price: UnaryExpression) -> list[ProductInDB] | JSONResponse:
     stmt = select(Product)
     if name is not None:
         stmt = stmt.order_by(name)
@@ -58,6 +59,6 @@ async def fetch_request_products(db: AsyncSession, query: ProductQuery) -> list[
     column_price_sorted = getattr(Product.price, query.price_sorted)() if query.price_sorted != 'default' else None
     column_name_sorted = getattr(Product.name, query.name_sorted)() if query.name_sorted != 'default' else None
     if query.keyword:
-        return await sorted_keyword_data(db, query.keyword, column_name_sorted, column_price_sorted)
+        return await sorted_data_with_keyword(db, query.keyword, column_name_sorted, column_price_sorted)
     else:
-        return await sorted_data(db, column_name_sorted, column_price_sorted)
+        return await sorted_data_without_keyword(db, column_name_sorted, column_price_sorted)

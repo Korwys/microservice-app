@@ -50,16 +50,12 @@ async def update_product_quantity(db: AsyncSession, obj_in: CartUpdate) -> CartU
     elif result is None:
         return JSONResponse(status_code=404,
                             content={"Message": "No product with same ID in the cart. Check product ID"})
-    else:
-        return JSONResponse(status_code=404, content={"Message": "Product quantity must be greater than 0"})
 
 
-async def fetch_all_products_from_cart(db: AsyncSession) -> list[Cart]:
-    stmt = select(Cart)
+async def fetch_all_products_from_cart(db: AsyncSession) -> list[Cart] | JSONResponse:
     try:
-        result = await db.execute(stmt)
-        values = result.scalars().all()
-        return values
+        result = await db.execute(select(Cart))
+        return result.scalars().all()
     except SQLAlchemyError as err:
         logger.exception(err)
         return error_notification()
