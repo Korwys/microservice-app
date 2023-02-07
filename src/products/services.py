@@ -28,31 +28,13 @@ async def add_product_in_db(db: AsyncSession, obj_in: ProductCreate) -> ProductI
 async def sorted_data_with_keyword(db: AsyncSession, keyword: str, name: UnaryExpression,
                                    price: UnaryExpression) -> list[ProductInDB] | JSONResponse:
     stmt = select(Product).where(Product.name.ilike(f"%{keyword}%"))
-    if name is not None:
-        stmt = stmt.order_by(name)
-    if price is not None:
-        stmt = stmt.order_by(price)
-    try:
-        result = await db.execute(stmt)
-        return result.scalars().all()
-    except SQLAlchemyError as err:
-        logger.exception(err)
-        return error_notification()
+    return await apply_sorting_to_data(stmt=stmt, price=price, name=name, db=db)
 
 
 async def sorted_data_without_keyword(db: AsyncSession, name: UnaryExpression,
                                       price: UnaryExpression) -> list[ProductInDB] | JSONResponse:
     stmt = select(Product)
-    if name is not None:
-        stmt = stmt.order_by(name)
-    if price is not None:
-        stmt = stmt.order_by(price)
-    try:
-        result = await db.execute(stmt)
-        return result.scalars().all()
-    except SQLAlchemyError as err:
-        logger.exception(err)
-        return error_notification()
+    return await apply_sorting_to_data(stmt=stmt, price=price, name=name, db=db)
 
 
 async def fetch_request_products(db: AsyncSession, query: ProductQuery) -> list[ProductInDB] | JSONResponse:
@@ -62,3 +44,17 @@ async def fetch_request_products(db: AsyncSession, query: ProductQuery) -> list[
         return await sorted_data_with_keyword(db, query.keyword, column_name_sorted, column_price_sorted)
     else:
         return await sorted_data_without_keyword(db, column_name_sorted, column_price_sorted)
+
+
+async def apply_sorting_to_data(stmt: select, name: UnaryExpression, price: UnaryExpression,
+                                db: AsyncSession) -> list[ProductInDB] | JSONResponse:
+    if name is not None:
+        stmt = stmt.order_by(name)
+    if price is not None:
+        stmt = stmt.order_by(price)
+    try:
+        result = await db.execute(stmt)
+        return result.scalars().all()
+    except SQLAlchemyError as err:
+        logger.exception(err)
+        return error_notification()
