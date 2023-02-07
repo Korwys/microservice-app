@@ -3,7 +3,7 @@ from httpx import AsyncClient
 
 
 @pytest.mark.anyio
-async def test_search_product_wrong_keyword(client: AsyncClient):
+async def test_search_product_without_search_data(client: AsyncClient):
     response = await client.post("/api/product/search", json={
         "keyword": "string",
         "price_sorted": "default",
@@ -14,39 +14,97 @@ async def test_search_product_wrong_keyword(client: AsyncClient):
 
 
 @pytest.mark.anyio
-async def test_search_all_product_without_keyword(client: AsyncClient):
+async def test_search_product_with_wrong_price_sort_keyword(client: AsyncClient):
+    response = await client.post("/api/product/search", json={
+        "price_sorted": "wrong sort keyword",
+        "name_sorted": "default"
+    })
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": [
+            {
+                "loc": [
+                    "body",
+                    "price_sorted"
+                ],
+                "msg": "The sorting type should only be: default - if no sort, or asc or desc",
+                "type": "value_error"
+            }
+        ]
+    }
+
+
+@pytest.mark.anyio
+async def test_search_product_with_wrong_name_and_price_sort_keyword(client: AsyncClient):
+    response = await client.post("/api/product/search", json={
+        "price_sorted": "wrong sort keyword",
+        "name_sorted": "wrong sort keyword"
+    })
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": [
+            {
+                "loc": [
+                    "body",
+                    "price_sorted"
+                ],
+                "msg": "The sorting type should only be: default - if no sort, or asc or desc",
+                "type": "value_error"
+            },
+            {
+                "loc": [
+                    "body",
+                    "name_sorted"
+                ],
+                "msg": "The sorting type should only be: default - if no sort, or asc or desc",
+                "type": "value_error"
+            }
+        ]
+    }
+
+
+@pytest.mark.anyio
+async def test_search_all_product_without_keyword_and_sort(client: AsyncClient):
     response = await client.post("/api/product/search", json={})
     assert response.status_code == 200
     assert response.json() == [
         {
+            "id": 1,
             "name": "Nokia 3310",
             "price": 1000
         },
         {
+            "id": 2,
             "name": "Motorola V3",
             "price": 3000
         },
         {
+            "id": 3,
             "name": "Samsung G1000",
             "price": 52200
         },
         {
+            "id": 4,
             "name": "Xiaomi Note10 Pro",
             "price": 13000
         },
         {
+            "id": 5,
             "name": "Iphone 14",
             "price": 20000
         },
         {
+            "id": 6,
             "name": "Nokia XS",
             "price": 12000
         },
         {
+            "id": 7,
             "name": "Iphone 15",
             "price": 22000
         },
         {
+            "id": 8,
             "name": "Nokia A",
             "price": 26000
         }
@@ -63,14 +121,17 @@ async def test_search_product_keyword_nokia_lowercase_without_sorting(client: As
     assert response.status_code == 200
     assert response.json() == [
         {
+            "id": 1,
             "name": "Nokia 3310",
             "price": 1000
         },
         {
+            "id": 6,
             "name": "Nokia XS",
             "price": 12000
         },
         {
+            "id": 8,
             "name": "Nokia A",
             "price": 26000
         }
@@ -87,14 +148,17 @@ async def test_search_product_keyword_nokia_uppercase_without_sorting(client: As
     assert response.status_code == 200
     assert response.json() == [
         {
+            "id": 1,
             "name": "Nokia 3310",
             "price": 1000
         },
         {
+            "id": 6,
             "name": "Nokia XS",
             "price": 12000
         },
         {
+            "id": 8,
             "name": "Nokia A",
             "price": 26000
         }
@@ -111,14 +175,17 @@ async def test_search_product_keyword_nokia_price_sorted_asc(client: AsyncClient
     assert response.status_code == 200
     assert response.json() == [
         {
+            "id": 1,
             "name": "Nokia 3310",
             "price": 1000
         },
         {
+            "id": 6,
             "name": "Nokia XS",
             "price": 12000
         },
         {
+            "id": 8,
             "name": "Nokia A",
             "price": 26000
         }
@@ -135,14 +202,17 @@ async def test_search_product_keyword_nokia_price_sorted_desc(client: AsyncClien
     assert response.status_code == 200
     assert response.json() == [
         {
+            "id": 8,
             "name": "Nokia A",
             "price": 26000
         },
         {
+            "id": 6,
             "name": "Nokia XS",
             "price": 12000
         },
         {
+            "id": 1,
             "name": "Nokia 3310",
             "price": 1000
         }
@@ -159,14 +229,17 @@ async def test_search_product_keyword_nokia_name_sorted_asc(client: AsyncClient)
     assert response.status_code == 200
     assert response.json() == [
         {
+            "id": 1,
             "name": "Nokia 3310",
             "price": 1000
         },
         {
+            "id": 8,
             "name": "Nokia A",
             "price": 26000
         },
         {
+            "id": 6,
             "name": "Nokia XS",
             "price": 12000
         }
@@ -183,14 +256,17 @@ async def test_search_product_keyword_nokia_name_sorted_desc(client: AsyncClient
     assert response.status_code == 200
     assert response.json() == [
         {
+            "id": 6,
             "name": "Nokia XS",
             "price": 12000
         },
         {
+            "id": 8,
             "name": "Nokia A",
             "price": 26000
         },
         {
+            "id": 1,
             "name": "Nokia 3310",
             "price": 1000
         }
@@ -206,34 +282,42 @@ async def test_search_product_without_keyword_name_sorted_desc(client: AsyncClie
     assert response.status_code == 200
     assert response.json() == [
         {
+            "id": 4,
             "name": "Xiaomi Note10 Pro",
             "price": 13000
         },
         {
+            "id": 3,
             "name": "Samsung G1000",
             "price": 52200
         },
         {
+            "id": 6,
             "name": "Nokia XS",
             "price": 12000
         },
         {
+            "id": 8,
             "name": "Nokia A",
             "price": 26000
         },
         {
+            "id": 1,
             "name": "Nokia 3310",
             "price": 1000
         },
         {
+            "id": 2,
             "name": "Motorola V3",
             "price": 3000
         },
         {
+            "id": 7,
             "name": "Iphone 15",
             "price": 22000
         },
         {
+            "id": 5,
             "name": "Iphone 14",
             "price": 20000
         }
@@ -249,34 +333,42 @@ async def test_search_product_without_keyword_price_sorted_asc(client: AsyncClie
     assert response.status_code == 200
     assert response.json() == [
         {
+            "id": 1,
             "name": "Nokia 3310",
             "price": 1000
         },
         {
+            "id": 2,
             "name": "Motorola V3",
             "price": 3000
         },
         {
+            "id": 6,
             "name": "Nokia XS",
             "price": 12000
         },
         {
+            "id": 4,
             "name": "Xiaomi Note10 Pro",
             "price": 13000
         },
         {
+            "id": 5,
             "name": "Iphone 14",
             "price": 20000
         },
         {
+            "id": 7,
             "name": "Iphone 15",
             "price": 22000
         },
         {
+            "id": 8,
             "name": "Nokia A",
             "price": 26000
         },
         {
+            "id": 3,
             "name": "Samsung G1000",
             "price": 52200
         }
@@ -292,34 +384,42 @@ async def test_search_product_without_keyword_price_and_name_sorted_asc(client: 
     assert response.status_code == 200
     assert response.json() == [
         {
+            "id": 5,
             "name": "Iphone 14",
             "price": 20000
         },
         {
+            "id": 7,
             "name": "Iphone 15",
             "price": 22000
         },
         {
+            "id": 2,
             "name": "Motorola V3",
             "price": 3000
         },
         {
+            "id": 1,
             "name": "Nokia 3310",
             "price": 1000
         },
         {
+            "id": 8,
             "name": "Nokia A",
             "price": 26000
         },
         {
+            "id": 6,
             "name": "Nokia XS",
             "price": 12000
         },
         {
+            "id": 3,
             "name": "Samsung G1000",
             "price": 52200
         },
         {
+            "id": 4,
             "name": "Xiaomi Note10 Pro",
             "price": 13000
         }
@@ -334,6 +434,7 @@ async def test_create_new_product(client: AsyncClient):
     })
     assert response.status_code == 201
     assert response.json() == {
+        "id": 9,
         "name": "Samsung",
         "price": 101010
     }
@@ -353,7 +454,7 @@ async def test_create_new_poduct_with_wrong_price(client: AsyncClient):
                     "body",
                     "price"
                 ],
-                "msg": "Product price must be less 99999999999.9",
+                "msg": "Product price must be lt 99999999999.9 and ge 0",
                 "type": "value_error"
             }
         ]
@@ -383,7 +484,7 @@ async def test_create_new_poduct_with_wrong_price_and_name(client: AsyncClient):
                     "body",
                     "price"
                 ],
-                "msg": "Product price must be less 99999999999.9",
+                "msg": "Product price must be lt 99999999999.9 and ge 0",
                 "type": "value_error"
             }
         ]

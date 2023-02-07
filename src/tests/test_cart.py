@@ -24,8 +24,19 @@ async def test_cart_add_product(client: AsyncClient):
     assert response.json() == {
         "id": 1,
         "product": 1,
-        "price": 1000,
         "quantity": 1
+    }
+
+
+@pytest.mark.anyio
+async def test_cart_add_product_which_already_in_the_cart(client: AsyncClient):
+    response = await client.post("/api/cart/add", json={
+        "product": 1,
+        "quantity": 1
+    })
+    assert response.status_code == 400
+    assert response.json() == {
+        "Message": "This product is already in the cart."
     }
 
 
@@ -74,7 +85,6 @@ async def test_cart_get_all_product_from_cart(client: AsyncClient):
         {
             "id": 1,
             "product": 1,
-            "price": 1000.0,
             "quantity": 10
         }
     ]
