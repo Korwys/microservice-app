@@ -34,11 +34,11 @@ CURL:
 
 3) Добавить товар в корзину:
 
-``curl -X 'POST' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"product": 9,"quantity": 1}' 'http://0.0.0.0:8080/api/cart/add' ``
+``curl -X 'POST' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"product": 10,"quantity": 1}' 'http://0.0.0.0:8080/api/cart/add' ``
 
 4) Изменить количество товара в корзине:
 
-``curl -X 'PATCH' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"product": 9,"quantity": 120}' 'http://0.0.0.0:8080/api/cart/update_quantity' ``
+``curl -X 'PATCH' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"product": 10,"quantity": 120}' 'http://0.0.0.0:8080/api/cart/update_quantity' ``
 
 5) Получить список товаров в корзине:
 
