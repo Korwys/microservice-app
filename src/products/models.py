@@ -8,4 +8,4 @@ class Product(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(150), nullable=False)
-    price = Column(DECIMAL(11, 2), nullable=False)
+    price = Column(DECIMAL(12, 2), nullable=False)

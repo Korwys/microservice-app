@@ -11,15 +11,15 @@ class ProductCreate(ProductBase):
 
     @validator('name')
     def name_validation(cls, value: str) -> str:
-        if len(value) == 0 or len(value) > 150:
+        if len(value.strip()) == 0 or len(value) > 150:
             raise ValueError('Product name must be less than 150  but more than 0 characters')
         else:
             return value
 
     @validator('price')
     def price_validator(cls, value: float) -> float:
-        if value > 99999999999.9 or value < 0:
-            raise ValueError('Product price must be lt 99999999999.9 and ge 0')
+        if value > 999999999.9 or value < 0:
+            raise ValueError('Product price must be lte 999999999.9 and ge 0')
         else:
             return value
 

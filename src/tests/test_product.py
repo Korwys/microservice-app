@@ -3,7 +3,7 @@ from httpx import AsyncClient
 
 
 @pytest.mark.anyio
-async def test_search_product_without_search_data(client: AsyncClient):
+async def test_search_product_which_no_in_db(client: AsyncClient):
     response = await client.post("/api/product/search", json={
         "keyword": "string",
         "price_sorted": "default",
@@ -441,7 +441,7 @@ async def test_create_new_product(client: AsyncClient):
 
 
 @pytest.mark.anyio
-async def test_create_new_poduct_with_wrong_price(client: AsyncClient):
+async def test_create_new_product_with_large_price(client: AsyncClient):
     response = await client.post("/api/product/", json={
         "name": "Samsung",
         "price": 10101093284928490239482942948
@@ -454,7 +454,28 @@ async def test_create_new_poduct_with_wrong_price(client: AsyncClient):
                     "body",
                     "price"
                 ],
-                "msg": "Product price must be lt 99999999999.9 and ge 0",
+                "msg": "Product price must be lte 999999999.9 and ge 0",
+                "type": "value_error"
+            }
+        ]
+    }
+
+
+@pytest.mark.anyio
+async def test_create_new_product_with_negative_price(client: AsyncClient):
+    response = await client.post("/api/product/", json={
+        "name": "Samsung",
+        "price": -1
+    })
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": [
+            {
+                "loc": [
+                    "body",
+                    "price"
+                ],
+                "msg": "Product price must be lte 999999999.9 and ge 0",
                 "type": "value_error"
             }
         ]
@@ -484,7 +505,28 @@ async def test_create_new_poduct_with_wrong_price_and_name(client: AsyncClient):
                     "body",
                     "price"
                 ],
-                "msg": "Product price must be lt 99999999999.9 and ge 0",
+                "msg": "Product price must be lte 999999999.9 and ge 0",
+                "type": "value_error"
+            }
+        ]
+    }
+
+
+@pytest.mark.anyio
+async def test_create_new_product_with_only_space_in_product_name(client: AsyncClient):
+    response = await client.post("/api/product/", json={
+        "name": "        ",
+        "price": 100
+    })
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": [
+            {
+                "loc": [
+                    "body",
+                    "name"
+                ],
+                "msg": "Product name must be less than 150  but more than 0 characters",
                 "type": "value_error"
             }
         ]
